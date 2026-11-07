@@ -7,6 +7,8 @@
 <meta name="description" content="카톡 링크로 각자 녹음한 파트를 자동으로 맞추고, 누가 어디서 밀렸는지 알려주는 밴드용 비동기 합주 도구">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-gov-dynamic-subset.min.css">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/components.css">
 <link rel="stylesheet" href="css/site.css">
 </head>
 <body>
@@ -27,9 +29,9 @@
 
 <header class="site-head">
   <div class="container">
-    <a class="logo" href="#top"><span class="mark"><svg class="ic s20"><use href="#i-wave"/></svg></span>악기다</a>
+    <a class="logo" href="#top"><span class="mark"><svg class="ak-ic ic s20"><use href="#i-wave"/></svg></span>악기다</a>
     <nav class="nav" aria-label="주요 메뉴">
-      <a href="#how">어떻게 쓰나요</a><a href="#demo">합주 맞춰보기</a><a href="#flow">화면 흐름</a>
+      <a href="#how">어떻게 쓰나요</a><a href="onboarding.html">앱 온보딩</a><a href="#demo">합주 맞춰보기</a><a href="#flow">화면 흐름</a>
     </nav>
   </div>
 </header>
@@ -40,8 +42,8 @@
       <h1>합주실 가기 전에, 각자 녹음해서 맞춰보세요</h1>
       <p>카톡 링크로 멤버를 부르고 기준 트랙 위에 각자 녹음하면, 악기다가 녹음 지연을 자동으로 맞추고 누가 몇 마디에서 몇 ms 밀렸는지 알려줍니다.</p>
       <div class="actions">
-        <a class="btn" href="#demo"><svg class="ic s20"><use href="#i-play"/></svg>예시로 합주 맞춰보기</a>
-        <a class="btn secondary" href="#flow">화면 흐름 보기</a>
+        <a class="ak-btn ak-btn-primary" href="#demo"><svg class="ak-ic ic s20"><use href="#i-play"/></svg>예시로 합주 맞춰보기</a>
+        <a class="ak-btn ak-btn-secondary" href="onboarding.html">앱 온보딩 보기</a>
       </div>
       <div class="facts" id="how">
         <div class="fact"><b>1. 진단</b><span>파트별 박자 분석으로 밀린 마디를 찾아요</span></div>
@@ -62,8 +64,8 @@
             <h3><span class="no">1</span>기준 트랙</h3>
             <p class="hint">메트로놈이나 리더가 먼저 녹음한 파트입니다. 모두 이 트랙을 들으며 녹음해요.</p>
             <div class="btn-row">
-              <button class="btn small" id="load-sample" type="button"><svg class="ic s16"><use href="#i-wave"/></svg>예시 음원 쓰기</button>
-              <label class="btn small tertiary" for="guide-file"><svg class="ic s16"><use href="#i-upload"/></svg>파일 올리기</label>
+              <button class="ak-btn ak-btn-primary ak-btn-sm" id="load-sample" type="button"><svg class="ak-ic ic s16"><use href="#i-wave"/></svg>예시 음원 쓰기</button>
+              <label class="ak-btn ak-btn-tertiary ak-btn-sm" for="guide-file"><svg class="ak-ic ic s16"><use href="#i-upload"/></svg>파일 올리기</label>
               <input class="sr-only" id="guide-file" type="file" accept="audio/*,video/*">
             </div>
             <div class="field"><label for="bpm">템포(BPM)</label><input id="bpm" type="number" min="40" max="240" value="100" inputmode="numeric"></div>
@@ -74,8 +76,8 @@
             <h3><span class="no">2</span>내 파트</h3>
             <p class="hint">기준 트랙을 들으며 녹음하거나, 이미 녹음한 파일을 올리세요.</p>
             <div class="btn-row">
-              <button class="btn small" id="rec" type="button" disabled><svg class="ic s16"><use href="#i-mic"/></svg><span>들으며 녹음</span></button>
-              <label class="btn small tertiary" for="part-file"><svg class="ic s16"><use href="#i-upload"/></svg>파일 올리기</label>
+              <button class="ak-btn ak-btn-primary ak-btn-sm" id="rec" type="button" disabled><svg class="ak-ic ic s16"><use href="#i-mic"/></svg><span>들으며 녹음</span></button>
+              <label class="ak-btn ak-btn-tertiary ak-btn-sm" for="part-file"><svg class="ak-ic ic s16"><use href="#i-upload"/></svg>파일 올리기</label>
               <input class="sr-only" id="part-file" type="file" accept="audio/*,video/*">
             </div>
             <div class="state" id="part-state">아직 없음</div>
@@ -83,7 +85,7 @@
 
           <div class="stepbox">
             <h3><span class="no">3</span>자동으로 맞추기</h3>
-            <button class="btn" id="run" type="button" disabled><svg class="ic s20"><use href="#i-sync"/></svg>맞추고 분석하기</button>
+            <button class="ak-btn ak-btn-primary" id="run" type="button" disabled><svg class="ak-ic ic s20"><use href="#i-sync"/></svg>맞추고 분석하기</button>
           </div>
         </div>
 
@@ -102,8 +104,8 @@
       <h2 id="flow-h">다음에 나올 기능</h2>
       <p class="desc">필요하다는 신호가 쌓이면 만듭니다. 눌러 주시면 그 기록으로 우선순위를 정해요. 전체 화면 흐름은 <a href="flow.html">화면 흐름 7단계</a>에서 볼 수 있어요.</p>
       <div class="flow-cta">
-        <button class="door" type="button" data-door="반복 연습"><svg class="ic"><use href="#i-sync"/></svg><span><b>밀린 마디만 느리게 반복 연습</b><small>70~100% 템포로 반복하고 테이크마다 어긋남을 비교해요</small></span></button>
-        <button class="door" type="button" data-door="셋리스트·동아리 아카이브"><svg class="ic"><use href="#i-archive"/></svg><span><b>셋리스트 준비도와 동아리 아카이브</b><small>공연까지 곡별 준비 상태와 지난 학기 기록을 모아요</small></span></button>
+        <button class="ak-door" type="button" data-door="반복 연습"><svg class="ak-ic ic"><use href="#i-sync"/></svg><span><b>밀린 마디만 느리게 반복 연습</b><small>70~100% 템포로 반복하고 테이크마다 어긋남을 비교해요</small></span></button>
+        <button class="ak-door" type="button" data-door="셋리스트·동아리 아카이브"><svg class="ak-ic ic"><use href="#i-archive"/></svg><span><b>셋리스트 준비도와 동아리 아카이브</b><small>공연까지 곡별 준비 상태와 지난 학기 기록을 모아요</small></span></button>
       </div>
     </div>
   </section>

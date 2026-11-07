@@ -13,7 +13,7 @@ const bpm = () => Math.min(240, Math.max(40, Number($("#bpm").value) || 100));
 function setState(el, text, kind = "") {
   const n = $(el);
   n.className = "state " + kind;
-  n.innerHTML = kind === "done" ? '<svg class="ic s16"><use href="#i-check"/></svg>' : "";
+  n.innerHTML = kind === "done" ? '<svg class="ak-ic ic s16"><use href="#i-check"/></svg>' : "";
   n.append(text);
 }
 function refresh() {
@@ -142,17 +142,17 @@ function render(r) {
       <div class="kpi"><span>비교한 박</span><b>${r.dev.length}개</b></div>
       <div class="kpi"><span>밀리거나 당긴 구간</span><b>${r.issues.length}곳</b></div>
     </div>
-    ${state.sample ? '<p class="state"><svg class="ic s16"><use href="#i-info"/></svg>예시 음원에는 녹음 지연 180ms와 9~12마디 밀림을 일부러 넣었어요.</p>' : ""}
+    ${state.sample ? '<p class="state"><svg class="ak-ic ic s16"><use href="#i-info"/></svg>예시 음원에는 녹음 지연 180ms와 9~12마디 밀림을 일부러 넣었어요.</p>' : ""}
     <div class="compare">
-      <button class="btn small tertiary" type="button" data-play="before" aria-pressed="false"><svg class="ic s16"><use href="#i-play"/></svg>맞추기 전 듣기</button>
-      <button class="btn small" type="button" data-play="after" aria-pressed="false"><svg class="ic s16"><use href="#i-play"/></svg>맞춘 합주 듣기</button>
-      <button class="btn small secondary" type="button" id="stop"><svg class="ic s16"><use href="#i-stop"/></svg>멈추기</button>
+      <button class="ak-btn ak-btn-tertiary ak-btn-sm" type="button" data-play="before" aria-pressed="false"><svg class="ak-ic ic s16"><use href="#i-play"/></svg>맞추기 전 듣기</button>
+      <button class="ak-btn ak-btn-primary ak-btn-sm" type="button" data-play="after" aria-pressed="false"><svg class="ak-ic ic s16"><use href="#i-play"/></svg>맞춘 합주 듣기</button>
+      <button class="ak-btn ak-btn-secondary ak-btn-sm" type="button" id="stop"><svg class="ak-ic ic s16"><use href="#i-stop"/></svg>멈추기</button>
     </div>`);
 
   const alerts = [];
-  for (const i of late) alerts.push(`<div class="alert late"><svg class="ic s20"><use href="#i-warn"/></svg><span><strong>${span(i)} 평균 +${i.mean.toFixed(0)}ms 늦음</strong>${i.start.toFixed(1)}초부터 기준 트랙보다 늦게 들어와요</span></div>`);
-  for (const i of early) alerts.push(`<div class="alert early"><svg class="ic s20"><use href="#i-info"/></svg><span><strong>${span(i)} 평균 ${i.mean.toFixed(0)}ms 빠름</strong>${i.start.toFixed(1)}초부터 기준 트랙보다 앞서 나가요</span></div>`);
-  if (!alerts.length) alerts.push(`<div class="alert ok"><svg class="ic s20"><use href="#i-check"/></svg><span><strong>모든 마디가 ±${FLAG_MS}ms 안이에요</strong>귀로 거의 느끼지 못하는 차이예요</span></div>`);
+  for (const i of late) alerts.push(`<div class="ak-alert ak-alert-late"><svg class="ak-ic ic s20"><use href="#i-warn"/></svg><span><strong>${span(i)} 평균 +${i.mean.toFixed(0)}ms 늦음</strong>${i.start.toFixed(1)}초부터 기준 트랙보다 늦게 들어와요</span></div>`);
+  for (const i of early) alerts.push(`<div class="ak-alert ak-alert-early"><svg class="ak-ic ic s20"><use href="#i-info"/></svg><span><strong>${span(i)} 평균 ${i.mean.toFixed(0)}ms 빠름</strong>${i.start.toFixed(1)}초부터 기준 트랙보다 앞서 나가요</span></div>`);
+  if (!alerts.length) alerts.push(`<div class="ak-alert ak-alert-ok"><svg class="ak-ic ic s20"><use href="#i-check"/></svg><span><strong>모든 마디가 ±${FLAG_MS}ms 안이에요</strong>귀로 거의 느끼지 못하는 차이예요</span></div>`);
   card("이 파트의 박자", alerts.join(""));
 
   const grid = card("마디별 평균 어긋남", `
@@ -162,18 +162,18 @@ function render(r) {
     <div class="memo-box" id="memo-box" hidden>
       <label for="memo-text"><b id="memo-label"></b></label>
       <textarea id="memo-text" placeholder="예: 브레이크 끝나고 들어올 때 늦어요"></textarea>
-      <div class="btn-row"><button class="btn small" id="memo-save" type="button"><svg class="ic s16"><use href="#i-pen"/></svg>메모 저장</button></div>
+      <div class="btn-row"><button class="ak-btn ak-btn-primary ak-btn-sm" id="memo-save" type="button"><svg class="ak-ic ic s16"><use href="#i-pen"/></svg>메모 저장</button></div>
     </div>
     <ul class="memo-list" id="memo-list"></ul>`);
   const bars = grid.querySelector("#bars");
   for (const b of r.perBar) {
     const el = document.createElement("button");
-    el.type = "button"; el.className = "bar-cell num";
-    if (b.mean > FLAG_MS) el.classList.add("late"); else if (b.mean < -FLAG_MS) el.classList.add("early");
-    if (state.memos[b.bar]) el.classList.add("memo");
+    el.type = "button"; el.className = "ak-bar";
+    if (b.mean > FLAG_MS) el.classList.add("ak-bar-late"); else if (b.mean < -FLAG_MS) el.classList.add("ak-bar-early");
+    if (state.memos[b.bar]) el.classList.add("ak-bar-memo");
     el.dataset.bar = b.bar; el.setAttribute("aria-pressed", "false");
     el.setAttribute("aria-label", `${b.bar}마디 평균 ${b.mean.toFixed(0)}ms`);
-    el.innerHTML = `${b.bar}<small>${b.mean > 0 ? "+" : ""}${b.mean.toFixed(0)}</small>`;
+    el.innerHTML = `<span>${b.bar}</span><small>${b.mean > 0 ? "+" : ""}${b.mean.toFixed(0)}</small>`;
     el.addEventListener("click", () => selectBar(b.bar));
     bars.append(el);
   }
@@ -222,7 +222,7 @@ function saveMemos() { try { localStorage.setItem("akkida-memos", JSON.stringify
 let selected = null;
 function selectBar(bar) {
   selected = bar;
-  document.querySelectorAll(".bar-cell").forEach(c => c.setAttribute("aria-pressed", String(Number(c.dataset.bar) === bar)));
+  document.querySelectorAll(".ak-bar").forEach(c => c.setAttribute("aria-pressed", String(Number(c.dataset.bar) === bar)));
   const box = $("#memo-box"); box.hidden = false;
   $("#memo-label").textContent = `${bar}마디 메모`;
   $("#memo-text").value = state.memos[bar] || "";
@@ -231,7 +231,7 @@ function selectBar(bar) {
     const t = $("#memo-text").value.trim();
     if (t) state.memos[bar] = t; else delete state.memos[bar];
     saveMemos();
-    document.querySelector(`.bar-cell[data-bar="${bar}"]`)?.classList.toggle("memo", !!t);
+    document.querySelector(`.ak-bar[data-bar="${bar}"]`)?.classList.toggle("ak-bar-memo", !!t);
     renderMemos(); toast(t ? `${bar}마디 메모를 저장했어요` : `${bar}마디 메모를 지웠어요`);
   };
 }

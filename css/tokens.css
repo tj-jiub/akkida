@@ -1,0 +1,103 @@
+/* 악기다 디자인 시스템 토큰 — design/tokens.json에서 생성 (scripts/build-tokens.mjs). 직접 고치지 말 것 */
+:root {
+  --bg: #f4f5f6;
+  --surface: #ffffff;
+  --surface-2: #f4f5f6;
+  --text: #1e2124;
+  --text-sub: #58616a;
+  --line: #cdd1d5;
+  --line-light: #e6e8ea;
+  --action: #256ef4;
+  --action-hover: #0b50d0;
+  --action-text: #ffffff;
+  --action-bg: #ecf2fe;
+  --action-line: #b1cefb;
+  --subtle: #eef2f7;
+  --subtle-line: #d6e0eb;
+  --subtle-text: #063a74;
+  --late: #bd2c0f;
+  --late-mark: #de3412;
+  --late-bg: #fdefec;
+  --late-soft: #f7afa1;
+  --ok: #267337;
+  --ok-bg: #eaf6ec;
+  --disabled-bg: #e6e8ea;
+  --disabled-text: #8a949e;
+  --focus-ring: 0 0 0 4px #d8e5fd;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --radius-2: 2px;
+  --radius-4: 4px;
+  --radius-8: 8px;
+  --radius-10: 10px;
+  --radius-12: 12px;
+  --radius-pill: 1000px;
+  --tap-min: 44px;
+  --button-md: 48px;
+  --cta: 56px;
+  --option: 60px;
+  --icon: 24px;
+  --font-sans: "Pretendard GOV", "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #000000;
+    --surface: #131416;
+    --surface-2: #1e2124;
+    --text: #ffffff;
+    --text-sub: #b1b8be;
+    --line: #464c53;
+    --line-light: #33363d;
+    --action: #4c87f6;
+    --action-hover: #86aff9;
+    --action-text: #000000;
+    --action-bg: #03163a;
+    --action-line: #083891;
+    --subtle: #02162c;
+    --subtle-line: #052b57;
+    --subtle-text: #90b0d5;
+    --late: #f48771;
+    --late-mark: #f05f42;
+    --late-bg: #390d05;
+    --late-soft: #8a240f;
+    --ok: #7fc58b;
+    --ok-bg: #0e2a14;
+    --disabled-bg: #33363d;
+    --disabled-text: #8a949e;
+    --focus-ring: 0 0 0 4px #052561;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #000000;
+  --surface: #131416;
+  --surface-2: #1e2124;
+  --text: #ffffff;
+  --text-sub: #b1b8be;
+  --line: #464c53;
+  --line-light: #33363d;
+  --action: #4c87f6;
+  --action-hover: #86aff9;
+  --action-text: #000000;
+  --action-bg: #03163a;
+  --action-line: #083891;
+  --subtle: #02162c;
+  --subtle-line: #052b57;
+  --subtle-text: #90b0d5;
+  --late: #f48771;
+  --late-mark: #f05f42;
+  --late-bg: #390d05;
+  --late-soft: #8a240f;
+  --ok: #7fc58b;
+  --ok-bg: #0e2a14;
+  --disabled-bg: #33363d;
+  --disabled-text: #8a949e;
+  --focus-ring: 0 0 0 4px #052561;
+  color-scheme: dark;
+}
