@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-gov-dynamic-subset.min.css">
+<title>악기다 화면 흐름</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap">
+<style>
+/* KRDS(대한민국 정부 디자인 시스템) 표준형 스타일 적용
+   - 색: gray(60%) · secondary(30%) · primary(10%) · 상태색은 텍스트·아이콘과 함께
+   - 글자: Pretendard GOV(없으면 Noto Sans KR), 본문 17px, 줄간격 150%, 굵기 400/700
+   - 반경: 2·4·6·8·10·12px, 간격: 4·8·12·16·20·24·32·40px
+   레이아웃: 위에 기능 사슬, 아래 폰 화면 7장을 가로로 넘겨봄. 각 화면 밑에 다음 기능을 부르는 신호 */
+:root{
+  --gray-0:#ffffff; --gray-5:#f4f5f6; --gray-10:#e6e8ea; --gray-20:#cdd1d5; --gray-50:#6d7882; --gray-60:#58616a; --gray-90:#1e2124;
+  --primary-5:#ecf2fe; --primary-10:#d8e5fd; --primary-50:#256ef4; --primary-60:#0b50d0;
+  --secondary-5:#eef2f7; --secondary-10:#d6e0eb; --secondary-70:#063a74;
+  --danger-5:#fdefec; --danger-10:#fcdfd9; --danger-50:#de3412; --danger-60:#bd2c0f;
+  --success-5:#eaf6ec; --success-60:#267337;
+  --info-5:#ecf2fe; --info-60:#0b50d0;
+
+  --bg:var(--gray-5); --surface:var(--gray-0); --text:var(--gray-90); --text-sub:var(--gray-60); --line:var(--gray-20); --line-light:var(--gray-10);
+  --action:var(--primary-50); --action-hover:var(--primary-60); --action-text:var(--gray-0);
+  --subtle:var(--secondary-5); --subtle-line:var(--secondary-10); --subtle-text:var(--secondary-70);
+  --late:var(--danger-60); --late-bg:var(--danger-5); --late-mark:var(--danger-50); --late-soft:var(--danger-10);
+  --ok:var(--success-60); --ok-bg:var(--success-5);
+  --info:var(--info-60); --info-bg:var(--info-5);
+  --focus:0 0 0 4px var(--primary-10);
+
+  --font:"Pretendard GOV","Pretendard","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --r-2:2px; --r-4:4px; --r-6:6px; --r-8:8px; --r-10:10px; --r-12:12px; --r-max:1000px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#000000; --surface:#131416; --text:#ffffff; --text-sub:#b1b8be; --line:#464c53; --line-light:#33363d;
+  --action:#4c87f6; --action-hover:#86aff9; --action-text:#000000;
+  --subtle:#02162c; --subtle-line:#052b57; --subtle-text:#90b0d5;
+  --late:#f48771; --late-bg:#390d05; --late-mark:#f05f42; --late-soft:#5c180a;
+  --ok:#7fc58b; --ok-bg:#0e2a14; --info:#86aff9; --info-bg:#03163a;
+  --focus:0 0 0 4px #052561; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#000000; --surface:#131416; --text:#ffffff; --text-sub:#b1b8be; --line:#464c53; --line-light:#33363d;
+  --action:#4c87f6; --action-hover:#86aff9; --action-text:#000000;
+  --subtle:#02162c; --subtle-line:#052b57; --subtle-text:#90b0d5;
+  --late:#f48771; --late-bg:#390d05; --late-mark:#f05f42; --late-soft:#5c180a;
+  --ok:#7fc58b; --ok-bg:#0e2a14; --info:#86aff9; --info-bg:#03163a;
+  --focus:0 0 0 4px #052561; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:17px;line-height:1.5;font-weight:400;word-break:keep-all;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 64px}
+.wrap{max-width:1200px;margin:0 auto;display:flex;flex-direction:column;gap:32px}
+h1{font-size:40px;line-height:1.5;letter-spacing:1px;font-weight:700;margin:0;text-wrap:balance}
+.lead{color:var(--text-sub);margin:8px 0 0;max-width:62ch;font-size:19px}
+.num{font-variant-numeric:tabular-nums}
+svg.ic{width:24px;height:24px;flex:none;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+svg.ic.s20{width:20px;height:20px}
+svg.ic.s16{width:16px;height:16px}
+
+/* 기능 사슬 */
+.chain-box{background:var(--surface);border:1px solid var(--line-light);border-radius:var(--r-12);padding:24px;display:flex;flex-direction:column;gap:12px}
+.chain-box h2{font-size:19px;font-weight:700;margin:0}
+.chain{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:var(--r-max);padding:4px 12px;font-size:15px;display:inline-flex;gap:8px;align-items:center}
+.chip b{font-size:13px;font-weight:700;color:var(--text-sub)}
+.chip.core{border-color:var(--action);background:var(--primary-5);color:var(--text)}
+:root[data-theme="dark"] .chip.core{background:var(--info-bg)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .chip.core{background:var(--info-bg)}}
+.chip.core b{color:var(--action)}
+.arrow{color:var(--text-sub);display:inline-flex}
+.legend{font-size:15px;color:var(--text-sub);margin:0}
+
+/* 폰 흐름 */
+.flow{display:flex;gap:24px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:16px}
+.step{flex:0 0 300px;scroll-snap-align:start;display:flex;flex-direction:column;gap:12px;min-width:0}
+.step-h{display:flex;gap:8px;align-items:center}
+.step-h .n{font-size:13px;font-weight:700;color:var(--text-sub)}
+.step-h .t{font-weight:700;font-size:17px}
+.tag{margin-left:auto;font-size:13px;border-radius:var(--r-4);padding:2px 8px;background:var(--subtle);color:var(--subtle-text);border:1px solid var(--subtle-line)}
+.tag.p0{background:var(--primary-5);color:var(--primary-60);border-color:var(--primary-10)}
+:root[data-theme="dark"] .tag.p0{background:var(--info-bg);color:var(--info);border-color:var(--subtle-line)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tag.p0{background:var(--info-bg);color:var(--info);border-color:var(--subtle-line)}}
+.phone{background:var(--surface);border:1px solid var(--line);border-radius:32px;height:580px;padding:20px 16px;display:flex;flex-direction:column;gap:12px;overflow:hidden;position:relative}
+.top{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--text-sub)}
+.title{font-weight:700;font-size:22px;line-height:1.5;margin:0}
+.sub{font-size:15px;color:var(--text-sub)}
+.xs{font-size:13px;color:var(--text-sub)}
+.signal{font-size:15px;background:var(--surface);border:1px solid var(--line-light);border-radius:var(--r-8);padding:12px;color:var(--text-sub);display:flex;gap:8px;margin:0}
+.signal strong{color:var(--text);font-weight:700}
+
+/* 컴포넌트 */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:48px;border:1px solid transparent;border-radius:var(--r-8);padding:8px 16px;font:inherit;font-size:17px;font-weight:700;background:var(--action);color:var(--action-text);cursor:pointer}
+.btn:hover{background:var(--action-hover)}
+.btn.secondary{background:var(--subtle);color:var(--subtle-text);border-color:var(--subtle-line)}
+.btn.secondary:hover{background:var(--subtle-line)}
+.btn:focus-visible,.door:focus-visible,.chip:focus-visible{outline:2px solid var(--action);outline-offset:2px;box-shadow:var(--focus)}
+.card{border:1px solid var(--line-light);border-radius:var(--r-10);padding:12px;display:flex;flex-direction:column;gap:8px;background:var(--surface)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:15px}
+.status{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:700;border-radius:var(--r-4);padding:2px 8px}
+.status.ok{color:var(--ok);background:var(--ok-bg)}
+.status.empty{color:var(--text-sub);background:var(--gray-5);border:1px dashed var(--line)}
+:root[data-theme="dark"] .status.empty{background:transparent}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .status.empty{background:transparent}}
+.status.late{color:var(--late);background:var(--late-bg)}
+.alert{border-radius:var(--r-8);padding:12px;display:flex;gap:8px;font-size:15px}
+.alert.late{background:var(--late-bg);border:1px solid var(--late-soft)}
+.alert.late svg{color:var(--late)}
+.alert.info{background:var(--info-bg);border:1px solid var(--subtle-line)}
+.alert.info svg{color:var(--info)}
+.alert strong{display:block}
+.spacer{flex:1}
+
+/* 1. 카톡 */
+.kakao{display:flex;flex-direction:column;gap:8px}
+.bubble{align-self:flex-start;background:var(--gray-5);border-radius:var(--r-4) var(--r-12) var(--r-12) var(--r-12);padding:8px 12px;font-size:15px;max-width:88%}
+:root[data-theme="dark"] .bubble{background:var(--line-light)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .bubble{background:var(--line-light)}}
+.linkcard{align-self:flex-start;border:1px solid var(--line);border-radius:var(--r-10);overflow:hidden;width:88%;background:var(--surface)}
+.linkcard .head{background:var(--secondary-70);color:#ffffff;padding:16px 12px;font-weight:700;font-size:17px}
+.linkcard .head span{display:block;font-weight:400;font-size:13px;color:#d6e0eb}
+.linkcard .foot{padding:8px 12px;font-size:13px;color:var(--text-sub)}
+
+/* 2. 녹음 */
+.guide{border-radius:var(--r-10);background:var(--subtle);border:1px solid var(--subtle-line);padding:12px;display:flex;flex-direction:column;gap:8px}
+.wave{height:40px;display:flex;align-items:center;gap:2px}
+.wave i{flex:1;background:var(--subtle-text);border-radius:1px;opacity:.5}
+.rec{width:72px;height:72px;border-radius:50%;border:4px solid var(--text);margin:0 auto;display:grid;place-items:center;background:var(--surface)}
+.rec span{width:28px;height:28px;border-radius:50%;background:var(--late-mark)}
+.count{text-align:center;font-size:28px;font-weight:700}
+
+/* 3. 합주 듣기 */
+.tracks{display:flex;flex-direction:column;gap:8px;position:relative}
+.track{display:grid;grid-template-columns:48px 1fr;gap:8px;align-items:center;font-size:13px}
+.lane{height:24px;border-radius:var(--r-4);background:var(--gray-5);position:relative;overflow:hidden}
+:root[data-theme="dark"] .lane{background:var(--line-light)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .lane{background:var(--line-light)}}
+.lane i{position:absolute;top:6px;bottom:6px;background:var(--subtle-text);border-radius:var(--r-2)}
+.lane.empty{border:1px dashed var(--line);background:transparent}
+.lane.empty span{font-size:13px;color:var(--text-sub);padding-left:8px;line-height:22px}
+.ph-area{position:absolute;top:0;bottom:0;left:56px;right:0;pointer-events:none}
+.playhead{position:absolute;top:0;bottom:0;width:2px;background:var(--action);left:8%}
+
+/* 4. 분석 */
+.heat{display:grid;grid-template-columns:44px repeat(16,1fr);gap:2px;align-items:center;font-size:13px}
+.heat .c{height:20px;border-radius:var(--r-2);background:var(--gray-10)}
+:root[data-theme="dark"] .heat .c{background:var(--line-light)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .heat .c{background:var(--line-light)}}
+.heat .c.w{background:var(--late-soft)}
+.heat .c.x{background:var(--late-mark)}
+.heat .c.none{background:transparent;border:1px dashed var(--line)}
+.barno{display:grid;grid-template-columns:44px repeat(16,1fr);gap:2px;font-size:11px;color:var(--text-sub);text-align:center}
+.legend2{display:flex;gap:12px;font-size:13px;color:var(--text-sub)}
+.legend2 span{display:inline-flex;align-items:center;gap:4px}
+.legend2 i{width:12px;height:12px;border-radius:var(--r-2);display:inline-block}
+
+/* 5. 메모 */
+.memo-strip{display:grid;grid-template-columns:repeat(16,1fr);gap:2px}
+.memo-strip i{height:28px;border-radius:var(--r-2);background:var(--gray-10)}
+:root[data-theme="dark"] .memo-strip i{background:var(--line-light)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .memo-strip i{background:var(--line-light)}}
+.memo-strip i.sel{background:var(--late-bg);outline:2px solid var(--late-mark)}
+.seg{display:flex;border:1px solid var(--line);border-radius:var(--r-8);overflow:hidden}
+.seg span{flex:1;text-align:center;font-size:15px;padding:8px 0;display:flex;align-items:center;justify-content:center;gap:4px}
+.seg span+span{border-left:1px solid var(--line)}
+.seg span.on{background:var(--action);color:var(--action-text);font-weight:700}
+.msg{font-size:15px;background:var(--gray-5);border-radius:var(--r-10);padding:8px 12px}
+:root[data-theme="dark"] .msg{background:var(--line-light)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .msg{background:var(--line-light)}}
+.msg b{font-size:13px;display:block}
+
+/* 6. 연습 */
+.takes{display:flex;align-items:flex-end;gap:8px;height:80px}
+.takes div{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:13px;color:var(--text-sub)}
+.takes i{width:100%;border-radius:var(--r-4) var(--r-4) 0 0;background:var(--subtle-text)}
+.takes i.bad{background:var(--late-mark)}
+
+/* 7. 셋리스트 */
+.song{display:grid;grid-template-columns:1fr auto;gap:4px 8px;font-size:15px;border-bottom:1px solid var(--line-light);padding-bottom:8px}
+.meter{grid-column:1/-1;height:6px;border-radius:var(--r-max);background:var(--gray-10);overflow:hidden}
+:root[data-theme="dark"] .meter{background:var(--line-light)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .meter{background:var(--line-light)}}
+.meter i{display:block;height:100%;background:var(--action)}
+.door{border:1px dashed var(--action);border-radius:var(--r-10);padding:12px;background:transparent;font:inherit;color:var(--text);text-align:left;cursor:pointer;display:flex;gap:8px;align-items:flex-start}
+.door svg{color:var(--action)}
+.door span{display:flex;flex-direction:column}
+.door strong{font-size:15px}
+.door small{font-size:13px;color:var(--text-sub)}
+.toast{position:absolute;left:16px;right:16px;bottom:16px;background:var(--gray-90);color:#ffffff;border-radius:var(--r-8);padding:12px;font-size:15px;display:flex;gap:8px}
+:root[data-theme="dark"] .toast{background:#ffffff;color:#1e2124}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .toast{background:#ffffff;color:#1e2124}}
+
+.note{font-size:15px;color:var(--text-sub);max-width:72ch;margin:0}
+@media (max-width:640px){
+  h1{font-size:28px}
+  .lead{font-size:17px}
+  .flow{flex-direction:column;overflow:visible;scroll-snap-type:none}
+  .step{flex:none;width:100%;max-width:340px;margin:0 auto}
+}
+@media (prefers-reduced-motion:no-preference){
+  .playhead.run{animation:play 8s linear infinite}
+  @keyframes play{from{left:0}to{left:100%}}
+}
+</style>
+</head>
+<body>
+<p style="max-width:1200px;margin:0 auto 16px;font-size:15px"><a href="./">← 악기다 홈</a></p>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1"/><path d="M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
+  <symbol id="i-head" viewBox="0 0 24 24"><path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 5v14l11-7z"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.01"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.5v.01"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/></symbol>
+  <symbol id="i-text" viewBox="0 0 24 24"><path d="M5 6h14M12 6v13"/></symbol>
+  <symbol id="i-mark" viewBox="0 0 24 24"><path d="M4 20h8M7 16l9-9 3 3-9 9H7z"/></symbol>
+  <symbol id="i-repeat" viewBox="0 0 24 24"><path d="M4 11V9a3 3 0 0 1 3-3h12M16 3l3 3-3 3M20 13v2a3 3 0 0 1-3 3H5M8 21l-3-3 3-3"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4.5 6v.01M4.5 12v.01M4.5 18v.01"/></symbol>
+  <symbol id="i-archive" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9M10 13h4"/></symbol>
+  <symbol id="i-signal" viewBox="0 0 24 24"><path d="M4 18v-2M9 18v-6M14 18V9M19 18V5"/></symbol>
+</svg>
+
+<div class="wrap">
+  <header>
+    <h1>악기다 화면 흐름</h1>
+    <p class="lead">카톡 링크로 들어와 각자 녹음하고, 자동으로 맞춘 합주를 들은 뒤, 밀린 구간을 고쳐 공연을 준비하는 흐름입니다. 각 화면 아래에는 다음 기능이 필요해졌다는 신호를 적었습니다. 모든 데이터는 예시입니다.</p>
+  </header>
+
+  <section class="chain-box" aria-labelledby="chain-h">
+    <h2 id="chain-h">기능 추가 순서</h2>
+    <div class="chain">
+      <span class="chip core"><b>P0</b>녹음 + 자동 싱크</span><span class="arrow"><svg class="ic s16"><use href="#i-arrow"/></svg></span>
+      <span class="chip core"><b>P0</b>박자 분석</span><span class="arrow"><svg class="ic s16"><use href="#i-arrow"/></svg></span>
+      <span class="chip"><b>P1</b>구간 메모</span><span class="arrow"><svg class="ic s16"><use href="#i-arrow"/></svg></span>
+      <span class="chip"><b>P1</b>구간 연습</span><span class="arrow"><svg class="ic s16"><use href="#i-arrow"/></svg></span>
+      <span class="chip"><b>P2</b>셋리스트 준비도</span><span class="arrow"><svg class="ic s16"><use href="#i-arrow"/></svg></span>
+      <span class="chip"><b>P2</b>동아리 아카이브</span><span class="arrow"><svg class="ic s16"><use href="#i-arrow"/></svg></span>
+      <span class="chip"><b>P3</b>빈 파트 모집</span>
+    </div>
+    <p class="legend">파란 칩은 처음부터 넣는 기능입니다. 나머지는 앞 기능을 쓰면서 생기는 신호가 기준을 넘으면 추가합니다.</p>
+  </section>
+
+  <div class="flow">
+
+    <!-- 1 -->
+    <article class="step">
+      <div class="step-h"><span class="n">01</span><span class="t">카톡으로 초대</span><span class="tag p0">P0 · 웹</span></div>
+      <div class="phone">
+        <div class="top"><span>정기공연 준비 단톡방</span><span>5명</span></div>
+        <div class="kakao">
+          <div class="bubble">이번 주 합주 전에 각자 녹음해서 맞춰보자</div>
+          <div class="linkcard">
+            <div class="head">Don't Look Back in Anger<span>기준 트랙 · 드럼 녹음 완료</span></div>
+            <div class="foot">악기다 · 설치 없이 바로 녹음</div>
+          </div>
+          <div class="bubble">베이스·기타·보컬 자리 비어 있어요</div>
+        </div>
+        <div class="spacer"></div>
+        <div class="card">
+          <strong style="font-size:15px">내 파트 고르기</strong>
+          <div class="row"><span>드럼 · 민준</span><span class="status ok"><svg class="ic s16"><use href="#i-check"/></svg>녹음됨</span></div>
+          <div class="row"><span>베이스</span><span class="status empty">비어 있음</span></div>
+          <div class="row"><span>기타</span><span class="status empty">비어 있음</span></div>
+        </div>
+      </div>
+      <p class="signal"><svg class="ic s20"><use href="#i-signal"/></svg><span>재는 것: <strong>링크를 연 사람 중 녹음까지 한 비율</strong></span></p>
+    </article>
+
+    <!-- 2 -->
+    <article class="step">
+      <div class="step-h"><span class="n">02</span><span class="t">기준 트랙 위에 녹음</span><span class="tag p0">P0</span></div>
+      <div class="phone">
+        <div class="top"><span>베이스 녹음</span><span class="num">♩ = 104</span></div>
+        <p class="title">이어폰을 꽂고 기준 트랙에 맞춰 연주하세요</p>
+        <div class="alert info"><svg class="ic s20"><use href="#i-head"/></svg><span>영상은 필요 없어요. 소리만 녹음해요.</span></div>
+        <div class="guide">
+          <div class="row"><span class="xs" style="color:var(--subtle-text)">기준 트랙 (드럼)</span><span class="xs num" style="color:var(--subtle-text)">0:00 / 3:48</span></div>
+          <div class="wave" id="wave"></div>
+        </div>
+        <div class="count num">4 · 3 · 2 · 1</div>
+        <div class="xs" style="text-align:center">카운트인 박수로 기기 지연을 함께 잽니다</div>
+        <div class="spacer"></div>
+        <div class="rec" role="img" aria-label="녹음 버튼"><span></span></div>
+      </div>
+      <p class="signal"><svg class="ic s20"><use href="#i-signal"/></svg><span>재는 것: <strong>곡 하나에 다시 녹음한 횟수</strong></span></p>
+    </article>
+
+    <!-- 3 -->
+    <article class="step">
+      <div class="step-h"><span class="n">03</span><span class="t">자동 싱크된 합주 듣기</span><span class="tag p0">P0</span></div>
+      <div class="phone">
+        <div class="top"><span>Don't Look Back in Anger</span><span>3/4 파트</span></div>
+        <p class="title">합주가 맞춰졌어요</p>
+        <div class="sub">기타 녹음이 <span class="num">212ms</span> 늦게 들어와서 자동으로 당겼어요</div>
+        <div class="tracks" id="tracks"><div class="ph-area"><div class="playhead" id="ph"></div></div></div>
+        <button class="btn" id="play" type="button"><svg class="ic s20" id="play-ic"><use href="#i-play"/></svg><span id="play-t">합주 재생</span></button>
+        <div class="spacer"></div>
+        <div class="alert info"><svg class="ic s20"><use href="#i-info"/></svg>
+          <span><strong>앱에서 녹음하면 더 정확하게 맞춰져요</strong>기기 지연을 한 번 측정해 두고, 새 파트가 올라오면 알려드려요.</span></div>
+        <button class="btn secondary" type="button">앱 설치</button>
+      </div>
+      <p class="signal"><svg class="ic s20"><use href="#i-signal"/></svg><span>재는 것: <strong>같은 구간을 3번 넘게 반복 재생한 팀 비율</strong></span></p>
+    </article>
+
+    <!-- 4 -->
+    <article class="step">
+      <div class="step-h"><span class="n">04</span><span class="t">파트별 박자 분석</span><span class="tag p0">P0 · 차별점</span></div>
+      <div class="phone">
+        <div class="top"><span>합주 분석</span><span>16마디</span></div>
+        <p class="title">기타가 9~12마디에서 밀렸어요</p>
+        <div class="barno" aria-hidden="true"><span></span><span>1</span><span></span><span></span><span>4</span><span></span><span></span><span></span><span>8</span><span>9</span><span></span><span></span><span>12</span><span></span><span></span><span></span><span>16</span></div>
+        <div class="heat" id="heat"></div>
+        <div class="legend2"><span><i style="background:var(--late-mark)"></i>40ms 이상</span><span><i style="background:var(--late-soft)"></i>30~40ms</span></div>
+        <div class="alert late"><svg class="ic s20"><use href="#i-warn"/></svg>
+          <span><strong>기타 · 9~12마디 평균 <span class="num">+47ms</span> 늦음</strong>20.4초부터 점점 늦어져요</span></div>
+        <div class="row xs"><span>기타 · 13~16마디 <span class="num">−25ms</span></span><span class="status ok">허용 범위</span></div>
+        <div class="spacer"></div>
+        <button class="door" type="button" data-door="메모"><svg class="ic s20"><use href="#i-pen"/></svg><span><strong>이 구간에 메모 남기기</strong><small>팀원에게 알려주세요</small></span></button>
+      </div>
+      <p class="signal"><svg class="ic s20"><use href="#i-signal"/></svg><span>재는 것: <strong>'메모 남기기'를 누른 팀 비율</strong> · 30%를 넘으면 메모 기능 추가</span></p>
+    </article>
+
+    <!-- 5 -->
+    <article class="step">
+      <div class="step-h"><span class="n">05</span><span class="t">마디 위에 메모</span><span class="tag">P1</span></div>
+      <div class="phone">
+        <div class="top"><span>9~12마디</span><span>메모 2</span></div>
+        <div class="memo-strip" id="memo"></div>
+        <div class="seg"><span class="on"><svg class="ic s16"><use href="#i-text"/></svg>텍스트</span><span><svg class="ic s16"><use href="#i-pen"/></svg>펜</span><span><svg class="ic s16"><use href="#i-mark"/></svg>강조</span></div>
+        <div class="msg"><b>민준 · 드럼</b>여기 브레이크 끝나고 들어올 때 기타가 늦어</div>
+        <div class="msg"><b>서연 · 기타</b>코드 바꾸는 데서 밀리는 듯. 연습해 올게</div>
+        <div class="xs">악보 PDF를 올리면 그 위에도 쓸 수 있어요</div>
+        <div class="spacer"></div>
+        <button class="btn secondary" type="button"><svg class="ic s20"><use href="#i-repeat"/></svg>이 구간 연습하기</button>
+      </div>
+      <p class="signal"><svg class="ic s20"><use href="#i-signal"/></svg><span>재는 것: <strong>메모가 달린 구간을 다시 녹음한 비율</strong></span></p>
+    </article>
+
+    <!-- 6 -->
+    <article class="step">
+      <div class="step-h"><span class="n">06</span><span class="t">밀린 구간만 연습</span><span class="tag">P1 · 개인</span></div>
+      <div class="phone">
+        <div class="top"><span>개인 연습 · 기타</span><span>9~12마디</span></div>
+        <p class="title">9~12마디를 느리게 반복해요</p>
+        <div class="card">
+          <div class="row"><span class="xs">템포</span><span class="xs num">반복 4 / 8</span></div>
+          <div class="seg num"><span>70%</span><span class="on">80%</span><span>90%</span><span>100%</span></div>
+        </div>
+        <div class="card">
+          <div class="row"><span class="xs">테이크별 평균 어긋남 (ms)</span></div>
+          <div class="takes num" id="takes"></div>
+          <div class="xs">30ms 안으로 들어오면 팀 트랙에 다시 녹음해요</div>
+        </div>
+        <div class="spacer"></div>
+        <button class="btn" type="button"><svg class="ic s20"><use href="#i-mic"/></svg>100% 템포로 다시 녹음</button>
+      </div>
+      <p class="signal"><svg class="ic s20"><use href="#i-signal"/></svg><span>재는 것: <strong>팀당 곡 수</strong> · 3곡 넘는 팀이 늘면 셋리스트 추가</span></p>
+    </article>
+
+    <!-- 7 -->
+    <article class="step">
+      <div class="step-h"><span class="n">07</span><span class="t">공연 준비도</span><span class="tag">P2 · 가짜 문</span></div>
+      <div class="phone">
+        <div class="top"><span>정기공연</span><span class="num">D-12</span></div>
+        <p class="title">5곡 중 2곡 준비됐어요</p>
+        <div id="songs" style="display:flex;flex-direction:column;gap:8px"></div>
+        <div class="spacer"></div>
+        <button class="door" type="button" data-door="동아리 아카이브"><svg class="ic s20"><use href="#i-archive"/></svg><span><strong>지난 학기 공연 불러오기</strong><small>동아리 아카이브 · 곧 나와요</small></span></button>
+      </div>
+      <p class="signal"><svg class="ic s20"><use href="#i-signal"/></svg><span>재는 것: <strong>지난 곡을 다시 찾는 팀</strong> · 동아리 아카이브 추가</span></p>
+    </article>
+
+  </div>
+
+  <p class="note">P3 빈 파트 모집은 2주 넘게 비어 있는 파트가 많아질 때 엽니다. 숏폼 공유와 음정 분석은 이 흐름 밖의 곁가지로, 요청이 쌓이면 따로 넣습니다. 디자인은 KRDS(대한민국 정부 디자인 시스템) 표준형 스타일의 색상·글자·형태·아이콘 규칙을 따랐습니다.</p>
+</div>
+
+<script>
+(function(){
+  var w=document.getElementById('wave');
+  for(var i=0;i<44;i++){var b=document.createElement('i');b.style.height=(i%4===0?90:(30+((i*37)%40)))+'%';w.appendChild(b)}
+
+  var tracks=[['드럼',[0,6,12,18,25,31,37,43,50,56,62,68,75,81,87,93]],['베이스',[0,12,25,37,50,62,75,87]],['기타',[2,14,27,39,52,64,77,89]],['보컬',null]];
+  var t=document.getElementById('tracks');
+  tracks.forEach(function(tr){
+    var r=document.createElement('div');r.className='track';
+    var l=document.createElement('span');l.textContent=tr[0];r.appendChild(l);
+    var lane=document.createElement('div');lane.className='lane'+(tr[1]?'':' empty');
+    if(tr[1]){tr[1].forEach(function(x){var n=document.createElement('i');n.style.left=x+'%';n.style.width=(tr[0]==='드럼'?2:9)+'%';lane.appendChild(n)})}
+    else{var s=document.createElement('span');s.textContent='비어 있음';lane.appendChild(s)}
+    r.appendChild(lane);t.appendChild(r);
+  });
+  var ph=document.getElementById('ph'),pb=document.getElementById('play');
+  pb.addEventListener('click',function(){
+    var on=ph.classList.toggle('run');
+    document.getElementById('play-t').textContent=on?'일시정지':'합주 재생';
+    document.querySelector('#play-ic use').setAttribute('href',on?'#i-pause':'#i-play');
+  });
+
+  var heat=document.getElementById('heat');
+  [['드럼',[]],['베이스',[]],['기타',[9,10,11,12]],['보컬',null]].forEach(function(r){
+    var l=document.createElement('span');l.textContent=r[0];heat.appendChild(l);
+    for(var m=1;m<=16;m++){var c=document.createElement('span');c.className='c';
+      if(r[1]===null)c.className+=' none';else if(r[1].indexOf(m)>=0)c.className+=(m>=11?' x':' w');
+      heat.appendChild(c)}
+  });
+
+  var memo=document.getElementById('memo');
+  for(var k=1;k<=16;k++){var s=document.createElement('i');if(k>=9&&k<=12)s.className='sel';memo.appendChild(s)}
+
+  var tk=document.getElementById('takes');
+  [[1,62],[2,51],[3,38],[4,24]].forEach(function(x){var d=document.createElement('div');var b=document.createElement('i');b.style.height=Math.round(x[1]/62*56)+'px';if(x[1]>30)b.className='bad';d.appendChild(b);var s=document.createElement('span');s.textContent=x[0]+'회 '+x[1];d.appendChild(s);tk.appendChild(d)});
+
+  var sg=document.getElementById('songs');
+  [['Don\'t Look Back in Anger',100,'준비됨','ok'],['주저하는 연인들을 위해',100,'준비됨','ok'],['Are You Gonna Be My Girl',75,'기타 9~12마디','late'],['오늘같은 밤이면',50,'보컬 비어 있음','empty'],['Seven Nation Army',25,'2파트 녹음','empty']].forEach(function(s){
+    var r=document.createElement('div');r.className='song';
+    var a=document.createElement('span');a.textContent=s[0];
+    var b=document.createElement('span');b.className='status '+s[3];b.textContent=s[2];
+    var m=document.createElement('span');m.className='meter';var i=document.createElement('i');i.style.width=s[1]+'%';m.appendChild(i);
+    r.appendChild(a);r.appendChild(b);r.appendChild(m);sg.appendChild(r)});
+
+  document.querySelectorAll('[data-door]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var phone=b.closest('.phone');var old=phone.querySelector('.toast');if(old)old.remove();
+      var t=document.createElement('div');t.className='toast';t.setAttribute('role','status');
+      t.innerHTML='<svg class="ic s20"><use href="#i-info"/></svg><span></span>';
+      t.querySelector('span').textContent=b.getAttribute('data-door')+' 기능은 준비 중이에요. 눌러주신 기록으로 우선순위를 정해요.';
+      phone.appendChild(t);setTimeout(function(){t.remove()},3200);
+    });
+  });
+})();
+</script>
+</body>
+</html>
