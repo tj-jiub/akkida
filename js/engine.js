@@ -29,7 +29,7 @@ function addPluck(buf, sr, start, freq, dur, decay, gain) {
 }
 
 /** 기준 트랙(클릭+베이스)과 기타 파트(기기 지연 + 9~12마디 밀림 + 13마디~ 살짝 당김) */
-export function synth({ sr = 44100, bpm = 100, bars = 16, latencyMs = 180, seed = 7 } = {}) {
+export function synth({ sr = 44100, bpm = 100, bars = 16, latencyMs = 180, seed = 7, drift = true, freqMul = 4 } = {}) {
   const r = rng(seed), beat = 60 / bpm, nBeats = bars * 4;
   const len = Math.ceil((nBeats + 4) * beat * sr);
   const guide = new Float32Array(len), part = new Float32Array(len);
@@ -40,10 +40,10 @@ export function synth({ sr = 44100, bpm = 100, bars = 16, latencyMs = 180, seed 
     addPluck(guide, sr, t, i % 4 === 0 ? 1500 : 1000, 0.03, 80, 0.5);
     addPluck(guide, sr, t, roots[bar % 4], beat * 0.9, 3, 0.6);
     let dev = gauss(r) * 8;
-    if (bar >= 8 && bar <= 11) dev += 20 + 50 * ((i - 32) / 15);
-    else if (bar >= 12) dev -= 25;
+    if (drift && bar >= 8 && bar <= 11) dev += 20 + 50 * ((i - 32) / 15);
+    else if (drift && bar >= 12) dev -= 25;
     truth.push(dev);
-    addPluck(part, sr, t + (latencyMs + dev) / 1000, roots[bar % 4] * 4, beat * 0.7, 5, 0.25);
+    addPluck(part, sr, t + (latencyMs + dev) / 1000, roots[bar % 4] * freqMul, beat * 0.7, 5, 0.25);
   }
   for (let i = 0; i < len; i++) part[i] += gauss(r) * 0.004;
   normalizePeak(guide, 0.9);

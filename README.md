@@ -9,7 +9,8 @@
 | 파일 | 내용 |
 | --- | --- |
 | `index.html` | 소개 + 동작하는 합주 데모 (기준 트랙 + 내 파트 → 자동 싱크 → 박자 분석 → 마디 메모) |
-| `onboarding.html` | iOS 앱 온보딩 목업: 한 화면 한 질문(악기·경력·밴드·공연·아쉬운 점) + 마이크·알림 안내 |
+| `app.html`, `js/phone.js` | iOS 앱 시제품: 휴대폰 화면 안에서 온보딩 → 팀 만들기 → 셋리스트 → 기준 트랙 위 녹음 → 분석 → 마디 메모 → 구간 반복 연습까지 이어짐. 탭: 합주·연습·내 정보. 상태는 이 기기(localStorage)에만 저장 |
+| `onboarding.html` | `app.html`로 넘어가는 예전 주소 |
 | `flow.html` | 카톡 초대부터 공연 준비도까지 화면 흐름 7단계와 기능 추가 순서 |
 | `design/tokens.json` | 악기다 디자인 시스템 토큰 원본 → `css/tokens.css`로 생성 |
 | `css/components.css` | 디자인 시스템 컴포넌트 스타일(`ak-btn`, `ak-alert`, `ak-bar`, `ak-door` …) |
