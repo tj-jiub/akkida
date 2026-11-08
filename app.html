@@ -121,6 +121,58 @@ canvas{width:100%;height:150px;display:block}
 .spin{width:40px;height:40px;border-radius:50%;border:4px solid var(--line-light);border-top-color:var(--action);animation:sp 1s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 
+/* 악보 */
+.kstage{flex:1;display:flex;flex-direction:column;justify-content:center;gap:4px;min-height:200px}
+.staff{width:100%;height:auto;display:block;overflow:visible}
+.staff .ln{stroke:var(--text-sub);stroke-width:1}
+.staff .bl{stroke:var(--text);stroke-width:1.2}
+.staff .hd{fill:var(--text)}
+.staff .hd.open{fill:none;stroke:var(--text);stroke-width:1.4}
+.staff .st{stroke:var(--text);stroke-width:1.2;fill:none}
+.staff .clef{fill:none;stroke:var(--text);stroke-width:1.6}
+.staff .dot{fill:var(--text)}
+.staff .hi{fill:var(--action-bg)}
+.staff .ph{stroke:var(--action);stroke-width:2}
+.staff .ly{fill:var(--text);font-size:11px;font-family:var(--font-sans)}
+.staff .no{fill:var(--text-sub);font-size:9px;font-family:var(--font-sans)}
+.staff.next{opacity:.4}
+.time{display:flex;justify-content:space-between;font-size:13px;color:var(--text-sub)}
+.body .ak-progress{flex:none}
+
+/* 기준 음량 */
+.meter-wrap{display:flex;gap:12px;justify-content:center;align-items:stretch;margin-top:8px}
+.lvmeter{position:relative;height:200px;width:72px;border-radius:var(--radius-12);background:var(--surface-2);overflow:hidden;border:1px solid var(--line-light)}
+.lvmeter .zone{position:absolute;left:0;right:0;bottom:50%;height:27%;background:var(--ok-bg);border-top:2px solid var(--ok);border-bottom:2px solid var(--ok)}
+.lvmeter .clip{position:absolute;left:0;right:0;top:0;height:10%;background:var(--late-bg)}
+.lvmeter .lvl{position:absolute;left:14px;right:14px;bottom:0;height:0;background:var(--action);border-radius:6px 6px 0 0}
+.scale{display:flex;flex-direction:column;justify-content:space-between;font-size:13px;color:var(--text-sub);padding:4px 0 32%}
+.scale .z{color:var(--ok);font-weight:700}
+.lvl-msg{display:flex;gap:8px;align-items:center;justify-content:center;font-weight:700;text-align:center;min-height:48px;color:var(--text-sub)}
+.lvl-msg.good{color:var(--ok)}
+.lvl-msg.bad{color:var(--late)}
+
+/* 점수 */
+.score{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;min-height:300px}
+.score .big{font-size:96px;line-height:1;font-weight:700}
+.score .big small{font-size:28px}
+.score .say{font-size:19px;margin:12px 0 4px}
+.cap .ic,.hint .ic{vertical-align:-3px}
+.more{font-size:15px;color:var(--text-sub);border-top:1px solid var(--line-light);padding-top:8px}
+.more summary{cursor:pointer;min-height:44px;display:flex;align-items:center}
+.more ul{margin:0;padding-left:18px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.sheet .row.card{border:1px solid var(--line-light);border-radius:var(--radius-12)}
+
+/* 믹서 */
+.mix{display:flex;flex-direction:column;gap:16px}
+.mrow{display:grid;grid-template-columns:72px 1fr 36px;gap:10px;align-items:center;font-size:15px}
+.mrow small{display:block;font-size:13px;color:var(--text-sub)}
+.mrow output{font-size:13px;color:var(--text-sub);text-align:right;font-variant-numeric:tabular-nums}
+.mtrack{display:flex;flex-direction:column;gap:2px}
+.mtrack input{width:100%;accent-color:var(--action);min-height:32px;margin:0}
+.ref{position:relative;height:4px;border-radius:2px;background:var(--line-light)}
+.ref i{position:absolute;top:-4px;width:2px;height:12px;background:var(--ok)}
+
 @media (max-width:480px){
   body{padding:0}
   .statusbar,.homebar{display:none}
@@ -137,7 +189,7 @@ canvas{width:100%;height:150px;display:block}
   <div class="viewport" id="vp"></div>
   <nav class="tabbar" id="tabbar" hidden aria-label="탭">
     <button class="tab" type="button" data-tab="home"><svg class="ic" width="24" height="24" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14.5a6.5 6.5 0 0 1 3.5 5.5"/></svg>합주</button>
-    <button class="tab" type="button" data-tab="practice"><svg class="ic" width="24" height="24" viewBox="0 0 24 24"><path d="M4 11V9a3 3 0 0 1 3-3h12M16 3l3 3-3 3M20 13v2a3 3 0 0 1-3 3H5M8 21l-3-3 3-3"/></svg>연습</button>
+    <button class="tab" type="button" data-tab="record"><svg class="ic" width="24" height="24" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>내 기록</button>
     <button class="tab" type="button" data-tab="me"><svg class="ic" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></svg>내 정보</button>
   </nav>
   <div class="homebar" aria-hidden="true"></div>

@@ -29,11 +29,10 @@ function addPluck(buf, sr, start, freq, dur, decay, gain) {
 }
 
 /** 기준 트랙(클릭+베이스)과 기타 파트(기기 지연 + 9~12마디 밀림 + 13마디~ 살짝 당김) */
-export function synth({ sr = 44100, bpm = 100, bars = 16, latencyMs = 180, seed = 7, drift = true, freqMul = 4 } = {}) {
+export function synth({ sr = 44100, bpm = 100, bars = 16, latencyMs = 180, seed = 7, drift = true, freqMul = 4, roots = [55, 55, 73.42, 65.41] } = {}) {
   const r = rng(seed), beat = 60 / bpm, nBeats = bars * 4;
   const len = Math.ceil((nBeats + 4) * beat * sr);
   const guide = new Float32Array(len), part = new Float32Array(len);
-  const roots = [55, 55, 73.42, 65.41];
   const truth = [];
   for (let i = 0; i < nBeats; i++) {
     const t = i * beat, bar = Math.floor(i / 4);
@@ -106,7 +105,7 @@ export function shift(x, ms, sr) {
 }
 
 /** 음 시작 시각(초): 이동 평균 + 표준편차 기준을 넘는 국소 최대, 최소 간격 80ms */
-export function detectOnsets(x, sr) {
+export function detectOnsets(x, sr, rel = 0.15) {
   const env = onsetEnvelope(x), n = env.length, w = Math.round(0.4 * sr / HOP);
   let max = 0; for (const v of env) max = Math.max(max, v);
   const out = [], minGap = Math.round(0.08 * sr / HOP);
@@ -116,7 +115,7 @@ export function detectOnsets(x, sr) {
     let lm = 0, c = 0;
     for (let k = Math.max(0, f - w); k < Math.min(n, f + w); k++) { lm += env[k]; c++; }
     lm /= c;
-    if (env[f] > lm + 0.1 * max && env[f] > 0.15 * max) {
+    if (env[f] > lm + 0.1 * max && env[f] > rel * max) {
       if (f - last >= minGap) { out.push((f * HOP) / sr); last = f; }
       else if (env[f] > env[last]) { out[out.length - 1] = (f * HOP) / sr; last = f; }
     }
@@ -172,4 +171,56 @@ export function mix(tracks, targetDb = -20) {
     for (let i = 0; i < t.length; i++) out[i] += t[i] * g;
   }
   return normalizePeak(out, 0.9);
+}
+
+// ---------------------------------------------------------------- 메트로놈 + 종합 점수 (노래방 방식)
+/** 메트로놈 소리만 있는 트랙. 첫 박이 0초 */
+export function clicks({ sr = 44100, bpm = 100, bars = 16 } = {}) {
+  const beat = 60 / bpm, len = Math.ceil((bars * 4 + 4) * beat * sr), out = new Float32Array(len);
+  for (let i = 0; i < bars * 4; i++) addPluck(out, sr, i * beat, i % 4 === 0 ? 1500 : 1000, 0.03, 80, 0.6);
+  return out;
+}
+
+/**
+ * 한 테이크의 종합 점수(0~100)와 한 줄 코멘트.
+ * - 박 정확도 70%: 친 음마다 가장 가까운 8분음표 칸과의 거리(±40ms 만점, 120ms 넘으면 0)
+ * - 고르기 30%: 그 거리가 들쭉날쭉하지 않은지
+ * - 끝까지 쳤는지: 곡 길이에 비해 친 음이 너무 적으면 비율만큼 깎음
+ * 기준은 메트로놈 트랙(clickTrack)이며, 녹음 지연은 자동으로 보정한다.
+ */
+export function scoreTake(clickTrack, take, sr, bpm, bars = 16) {
+  const n = Math.max(clickTrack.length, take.length);
+  const pad = x => { if (x.length === n) return x; const o = new Float32Array(n); o.set(x.subarray(0, n)); return o; };
+  const g = pad(clickTrack), p = pad(take);
+  const offsetMs = estimateOffsetMs(g, p, sr, bpm);
+  const aligned = shift(p, offsetMs, sr);
+  const beat = 60 / bpm, grid = beat / 2, end = bars * 4 * beat;
+  const raw = detectOnsets(aligned, sr, 0.4).filter(t => t < end + beat / 2);
+  const on = []; for (const t of raw) if (!on.length || t - on[on.length - 1] >= 0.14) on.push(t); // 한 음이 두 번 잡힌 것 합치기
+  const errs = on.map(t => ({ t, ms: (t - Math.round(t / grid) * grid) * 1000 }));
+  if (errs.length < 4) return { score: 0, comment: "연주 소리가 거의 들리지 않았어요", details: [], offsetMs, aligned };
+  const pts = errs.map(e => { const a = Math.abs(e.ms); return a <= 40 ? 1 : a >= 120 ? 0 : 1 - (a - 40) / 80; });
+  const acc = pts.reduce((s, x) => s + x, 0) / pts.length;
+  const mean = errs.reduce((s, e) => s + e.ms, 0) / errs.length;
+  const sd = Math.sqrt(errs.reduce((s, e) => s + (e.ms - mean) ** 2, 0) / errs.length);
+  const even = Math.min(1, Math.max(0, 1 - (sd - 15) / 60));
+  const cover = Math.min(1, errs.length / (bars * 4 * 0.6));
+  const score = Math.round(100 * (0.7 * acc + 0.3 * even) * cover ** 1.5);
+  // 4마디씩 묶어 가장 흔들린 구간 찾기
+  const chunks = [];
+  for (let c = 0; c < bars / 4; c++) {
+    const es = errs.filter(e => e.t >= c * 4 * 4 * beat - grid && e.t < (c + 1) * 4 * 4 * beat - grid);
+    if (!es.length) continue;
+    chunks.push({ from: c * 4 + 1, to: c * 4 + 4, mean: es.reduce((s, e) => s + e.ms, 0) / es.length });
+  }
+  const worst = chunks.slice().sort((a, b) => Math.abs(b.mean) - Math.abs(a.mean))[0];
+  const dir = m => (m > 0 ? "늦어졌어요" : "급해졌어요");
+  let comment, details = [];
+  if (cover < 0.6) comment = "곡의 일부만 연주됐어요. 끝까지 쳐 보세요";
+  else if (worst && Math.abs(worst.mean) > 22) {
+    comment = `${worst.from}~${worst.to}마디에서 살짝 ${dir(worst.mean)}`;
+    details = [`${worst.from}~${worst.to}마디가 기준 박자보다 ${worst.mean > 0 ? "뒤로" : "앞으로"} ${Math.round(Math.abs(worst.mean))}ms쯤 밀렸어요`,
+      chunks.filter(c => c !== worst && Math.abs(c.mean) <= 22).length === chunks.length - 1 ? "나머지 구간은 고르게 유지했어요" : "다른 구간도 조금씩 흔들렸어요"];
+  } else comment = score >= 85 ? "처음부터 끝까지 고르게 쳤어요" : "전체적으로 박이 조금씩 흔들렸어요";
+  return { score, comment, details, offsetMs, aligned };
 }
